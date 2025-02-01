@@ -11,6 +11,7 @@ cmake_policy(SET CMP0048 NEW)
 project(brotli C)
 
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
+option(BUILD_STATIC_LIBS "Build static libraries" OFF)
 set(BROTLI_BUILD_TOOLS ON CACHE BOOL "Build/install CLI tools")
 
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
@@ -117,6 +118,14 @@ add_library(brotlienc ${BROTLI_ENC_SOURCES})
 
 # Older CMake versions does not understand INCLUDE_DIRECTORIES property.
 include_directories(${BROTLI_INCLUDE_DIRS})
+
+if(BUILD_STATIC_LIBS)
+  add_library(brotlicommon-static STATIC ${BROTLI_COMMON_SOURCES})
+  add_library(brotlidec-static STATIC ${BROTLI_DEC_SOURCES})
+  add_library(brotlienc-static STATIC ${BROTLI_ENC_SOURCES})
+  target_link_libraries(brotlidec-static brotlicommon-static)
+  target_link_libraries(brotlienc-static brotlicommon-static)
+endif()
 
 if(BUILD_SHARED_LIBS)
   foreach(lib ${BROTLI_LIBRARIES_CORE})
